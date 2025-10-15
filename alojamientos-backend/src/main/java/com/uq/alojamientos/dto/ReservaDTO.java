@@ -2,7 +2,7 @@ package com.uq.alojamientos.dto;
 
 import lombok.Data;
 import java.time.LocalDate;
-import com.uq.alojamientos.model.enums.EstadoReserva;
+import com.uq.alojamientos.domain.enums.EstadoReserva;
 
 @Data
 public class ReservaDTO {

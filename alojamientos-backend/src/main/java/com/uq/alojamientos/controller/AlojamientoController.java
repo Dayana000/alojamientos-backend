@@ -1,31 +1,53 @@
 package com.uq.alojamientos.controller;
 
-
 import com.uq.alojamientos.dto.AlojamientoDTO;
-import io.swagger.v3.oas.annotations.Operation;
+import com.uq.alojamientos.service.AlojamientoService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/alojamientos")
 @RequiredArgsConstructor
 public class AlojamientoController {
 
-    @Operation(summary = "Crear alojamiento")
+    private final AlojamientoService service;
+
     @PostMapping
-    public ResponseEntity<AlojamientoDTO> crear(@RequestBody AlojamientoDTO dto) {
-        // TODO: llamar a servicio real
-        dto.setId(1L);
-        if (dto.getEstado() == null) dto.setEstado("ACTIVO");
-        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
+    public AlojamientoDTO crear(@RequestBody AlojamientoDTO dto) {
+        return service.crear(dto);
     }
 
-    @Operation(summary = "Eliminar (soft delete) alojamiento")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
-        // TODO: servicio.eliminarLogico(id)
-        return ResponseEntity.noContent().build();
+    public void eliminar(@PathVariable Long id) {
+        service.eliminarLogico(id);
+    }
+
+    @GetMapping
+    public Page<AlojamientoDTO> listar(
+            @RequestParam(defaultValue = "") String ciudad,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return service.buscarActivosPorCiudad(ciudad, PageRequest.of(page, size));
+    }
+
+    @GetMapping("/disponibles")
+    public Page<AlojamientoDTO> disponibles(
+            @RequestParam(required = false) String ciudad,
+            @RequestParam(required = false) BigDecimal precioMin,
+            @RequestParam(required = false) BigDecimal precioMax,
+            @RequestParam(required = false) Integer capacidad,
+            @RequestParam LocalDate desde,
+            @RequestParam LocalDate hasta,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return service.buscarDisponibles(
+                ciudad, precioMin, precioMax, capacidad, desde, hasta, PageRequest.of(page, size));
     }
 }

@@ -1,7 +1,7 @@
 package com.uq.alojamientos.service.impl;
 
 import com.uq.alojamientos.dto.UsuarioDTO;
-import com.uq.alojamientos.model.Usuario;
+import com.uq.alojamientos.domain.Usuario;
 import com.uq.alojamientos.repository.UsuarioRepository;
 import com.uq.alojamientos.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
