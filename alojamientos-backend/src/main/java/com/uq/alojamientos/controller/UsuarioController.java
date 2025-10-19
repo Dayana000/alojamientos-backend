@@ -1,38 +1,33 @@
 package com.uq.alojamientos.controller;
 
-import com.uq.alojamientos.dto.UsuarioDTO;
-import io.swagger.v3.oas.annotations.Operation;
+import com.uq.alojamientos.domain.Usuario;
+import com.uq.alojamientos.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * Endpoints de ejemplo para que Swagger muestre operaciones.
- * Reemplaza los TODO con llamadas reales a UsuarioService cuando lo tengas.
- */
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/usuarios")
 @RequiredArgsConstructor
 public class UsuarioController {
 
-    @Operation(summary = "Registrar usuario")
-    @PostMapping
-    public ResponseEntity<UsuarioDTO> registrar(@RequestBody UsuarioDTO dto) {
-        // TODO: usar UsuarioService para guardar en DB
-        dto.setId(1L); // respuesta de ejemplo
-        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
+    private final UsuarioRepository usuarioRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
+
+    @GetMapping
+    public List<Usuario> listar() {
+        return usuarioRepository.findAll();
     }
 
-    @Operation(summary = "Obtener usuario por id (demo)")
-    @GetMapping("/{id}")
-    public ResponseEntity<UsuarioDTO> getById(@PathVariable Long id) {
-        // TODO: usar UsuarioService.findById(id)
-        UsuarioDTO demo = new UsuarioDTO();
-        demo.setId(id);
-        demo.setNombre("Demo");
-        demo.setEmail("demo@correo.com");
-        demo.setRol("USUARIO");
-        return ResponseEntity.ok(demo);
+    @PostMapping
+    public ResponseEntity<Usuario> crearUsuario(@RequestBody Usuario usuario) {
+        // 🔐 Encriptar contraseña antes de guardar
+        usuario.setPasswordHash(passwordEncoder.encode(usuario.getPasswordHash()));
+        Usuario nuevo = usuarioRepository.save(usuario);
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
     }
 }

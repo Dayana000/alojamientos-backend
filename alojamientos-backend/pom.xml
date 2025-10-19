@@ -66,7 +66,7 @@
             <artifactId>spring-security-crypto</artifactId>
         </dependency>
 
-        <!-- JWT (JJWT) -->
+        <!-- JWT (JJWT: API + Impl + Jackson runtime) -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -132,23 +132,36 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- 👇 IMPRESCINDIBLE para @WebMvcTest con seguridad -->
+        <!-- 👉 Necesario para pruebas con Spring Security -->
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
 
-        <!-- Testcontainers (opcional, si los usarás) -->
+        <!-- Testcontainers (para pruebas de integración con BD) -->
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>jdbc</artifactId>
             <scope>test</scope>
         </dependency>
-        <!--
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>mariadb</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- (Opcional) JUnit Jupiter explícito si necesitas versión concreta -->
+        <!--
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.0</version>
             <scope>test</scope>
         </dependency>
         -->
@@ -184,14 +197,15 @@
                 </configuration>
             </plugin>
 
-            <!-- Surefire (opcional pero recomendado) -->
+            <!-- Surefire (ejecución tests unitarios) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven.surefire.version}</version>
             </plugin>
 
-            <!-- Jacoco (opcional, si piden cobertura)
+            <!-- JaCoCo (opcional) -->
+            <!--
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>

@@ -3,39 +3,35 @@ package com.uq.alojamientos.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import java.util.Arrays;
+import org.springframework.web.cors.*;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 public class CorsConfig {
 
-    @Value("${cors.allowed-origins:*}")
-    private String allowedOrigins;   // CSV o "*"
+    @Value("${cors.allowed-origins:http://localhost:4200}")
+    private String allowedOrigins;
 
     @Value("${cors.allowed-methods:GET,POST,PUT,DELETE,OPTIONS}")
-    private String allowedMethods;   // CSV
+    private String allowedMethods;
 
     @Value("${cors.allowed-headers:*}")
-    private String allowedHeaders;   // CSV o "*"
+    private String allowedHeaders;
 
     @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOrigins(splitOrWildcard(allowedOrigins))
-                        .allowedMethods(splitOrWildcard(allowedMethods))
-                        .allowedHeaders(splitOrWildcard(allowedHeaders))
-                        .allowCredentials(true);
-            }
-        };
-    }
-
-    private String[] splitOrWildcard(String v) {
-        if (v == null || v.isBlank() || "*".equals(v.trim())) return new String[]{"*"};
-        return Arrays.stream(v.split(",")).map(String::trim).filter(s -> !s.isEmpty()).toArray(String[]::new);
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        for (String origin : allowedOrigins.split(",")) config.addAllowedOrigin(origin.trim());
+        for (String m : allowedMethods.split(",")) config.addAllowedMethod(m.trim());
+        if ("*".equals(allowedHeaders)) {
+            config.addAllowedHeader(CorsConfiguration.ALL);
+        } else {
+            for (String h : allowedHeaders.split(",")) config.addAllowedHeader(h.trim());
+        }
+        config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 }
