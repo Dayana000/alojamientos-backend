@@ -1,10 +1,21 @@
+// ==========================================
+// AlojamientoController.java
+// ==========================================
 package com.uq.alojamientos.controller;
 
 import com.uq.alojamientos.dto.AlojamientoDTO;
 import com.uq.alojamientos.service.AlojamientoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -13,20 +24,28 @@ import java.time.LocalDate;
 @RestController
 @RequestMapping("/api/alojamientos")
 @RequiredArgsConstructor
+@Validated
+@Tag(name = "Alojamientos", description = "Gestión de alojamientos")
 public class AlojamientoController {
 
     private final AlojamientoService service;
 
+    @Operation(summary = "Crear nuevo alojamiento", security = @SecurityRequirement(name = "Bearer Authentication"))
+    @PreAuthorize("hasAnyRole('ANFITRION', 'ADMIN')")
     @PostMapping
-    public AlojamientoDTO crear(@RequestBody AlojamientoDTO dto) {
-        return service.crear(dto);
+    public ResponseEntity<AlojamientoDTO> crear(@Valid @RequestBody AlojamientoDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.crear(dto));
     }
 
+    @Operation(summary = "Eliminar alojamiento (lógico)", security = @SecurityRequirement(name = "Bearer Authentication"))
+    @PreAuthorize("hasAnyRole('ANFITRION', 'ADMIN')")
     @DeleteMapping("/{id}")
-    public void eliminar(@PathVariable Long id) {
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         service.eliminarLogico(id);
+        return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Listar alojamientos activos por ciudad")
     @GetMapping
     public Page<AlojamientoDTO> listar(
             @RequestParam(defaultValue = "") String ciudad,
@@ -36,6 +55,7 @@ public class AlojamientoController {
         return service.buscarActivosPorCiudad(ciudad, PageRequest.of(page, size));
     }
 
+    @Operation(summary = "Buscar alojamientos disponibles por fechas")
     @GetMapping("/disponibles")
     public Page<AlojamientoDTO> disponibles(
             @RequestParam(required = false) String ciudad,
