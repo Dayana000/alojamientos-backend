@@ -1,0 +1,77 @@
+<div class="detalle" *ngIf="!loading && alojamiento">
+
+  <!-- Imagen principal -->
+  <div class="detalle__hero">
+    <img
+      class="detalle__hero-image"
+      src="https://picsum.photos/1200/500"
+      [alt]="alojamiento.titulo"
+    />
+  </div>
+
+  <div class="detalle__content">
+
+    <!-- Información principal -->
+    <section class="detalle__main">
+      <h1 class="detalle__title">{{ alojamiento.titulo }}</h1>
+      <p class="detalle__city">{{ alojamiento.ciudad }}</p>
+
+      <p class="detalle__description">
+        {{ alojamiento.descripcion }}
+      </p>
+
+      <div class="detalle__meta">
+        <span class="detalle__price">
+          {{ alojamiento.precioPorNoche | currency:'COP':'symbol':'1.0-0' }}
+          <span class="detalle__price-night">/ noche</span>
+        </span>
+
+        <span class="detalle__capacity">
+          Capacidad: {{ alojamiento.capacidadMaxima }} huéspedes
+        </span>
+      </div>
+    </section>
+
+    <!-- Aside / Información rápida -->
+    <aside class="detalle__aside">
+      <div class="detalle__box">
+        <h2 class="detalle__box-title">Información rápida</h2>
+
+        <p class="detalle__box-item">
+          <strong>Ciudad:</strong> {{ alojamiento.ciudad }}
+        </p>
+
+        <p class="detalle__box-item">
+          <strong>Capacidad:</strong> {{ alojamiento.capacidadMaxima }} huéspedes
+        </p>
+
+        <p class="detalle__box-item">
+          <strong>Precio por noche:</strong>
+          {{ alojamiento.precioPorNoche | currency:'COP':'symbol':'1.0-0' }}
+        </p>
+
+        <!-- ✅ BOTÓN 100% CORREGIDO -->
+        <button
+          class="detalle__button"
+          type="button"
+          [routerLink]="['/alojamientos', alojamiento.id, 'reservar']"
+        >
+          Reservar este alojamiento
+        </button>
+
+      </div>
+    </aside>
+
+  </div>
+
+</div>
+
+<!-- Estado de carga -->
+<div class="detalle__state" *ngIf="loading">
+  Cargando alojamiento...
+</div>
+
+<!-- Estado de error -->
+<div class="detalle__state detalle__state--error" *ngIf="!loading && error">
+  {{ error }}
+</div>
