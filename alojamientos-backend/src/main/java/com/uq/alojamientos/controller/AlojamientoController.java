@@ -1,6 +1,3 @@
-// ==========================================
-// AlojamientoController.java
-// ==========================================
 package com.uq.alojamientos.controller;
 
 import com.uq.alojamientos.dto.AlojamientoDTO;
@@ -30,15 +27,21 @@ public class AlojamientoController {
 
     private final AlojamientoService service;
 
-    @Operation(summary = "Crear nuevo alojamiento", security = @SecurityRequirement(name = "Bearer Authentication"))
-    @PreAuthorize("hasAnyRole('ANFITRION', 'ADMIN')")
+    @Operation(
+            summary = "Crear nuevo alojamiento",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @PreAuthorize("hasAnyRole('ANFITRION','ADMIN')")
     @PostMapping
     public ResponseEntity<AlojamientoDTO> crear(@Valid @RequestBody AlojamientoDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.crear(dto));
     }
 
-    @Operation(summary = "Eliminar alojamiento (lógico)", security = @SecurityRequirement(name = "Bearer Authentication"))
-    @PreAuthorize("hasAnyRole('ANFITRION', 'ADMIN')")
+    @Operation(
+            summary = "Eliminar alojamiento (lógico)",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @PreAuthorize("hasAnyRole('ANFITRION','ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         service.eliminarLogico(id);
@@ -68,6 +71,14 @@ public class AlojamientoController {
             @RequestParam(defaultValue = "10") int size
     ) {
         return service.buscarDisponibles(
-                ciudad, precioMin, precioMax, capacidad, desde, hasta, PageRequest.of(page, size));
+                ciudad, precioMin, precioMax, capacidad, desde, hasta, PageRequest.of(page, size)
+        );
+    }
+
+    @Operation(summary = "Obtener detalle de un alojamiento por ID")
+    @GetMapping("/{id}")
+    public ResponseEntity<AlojamientoDTO> obtenerPorId(@PathVariable Long id) {
+        AlojamientoDTO dto = service.obtenerPorId(id);
+        return ResponseEntity.ok(dto);
     }
 }

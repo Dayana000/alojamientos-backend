@@ -8,7 +8,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public interface AlojamientoService {
+
     AlojamientoDTO crear(AlojamientoDTO dto);
+
     void eliminarLogico(Long id);
 
     Page<AlojamientoDTO> buscarActivosPorCiudad(String ciudad, Pageable pageable);
@@ -22,4 +24,7 @@ public interface AlojamientoService {
             LocalDate hasta,
             Pageable pageable
     );
+
+    // 👇 ESTE ES EL MÉTODO QUE NECESITA EL CONTROLADOR
+    AlojamientoDTO obtenerPorId(Long id);
 }

@@ -46,40 +46,52 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+
                         // 🌐 Endpoints públicos
-                        .requestMatchers("/", "/api/health",
+                        .requestMatchers(
+                                "/",
+                                "/api/health",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/webjars/**").permitAll()
+                                "/webjars/**"
+                        ).permitAll()
+
+                        // 🔑 Auth y registro
                         .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/usuarios").permitAll()
 
-                        // 🏡 ALOJAMIENTOS
-                        .requestMatchers(HttpMethod.GET, "/api/alojamientos/**").permitAll()  // Ver alojamientos → público
-                        .requestMatchers(HttpMethod.POST, "/api/alojamientos").hasAnyRole("ANFITRION", "ADMIN") // Crear → autenticado
+                        // 🏡 Alojamientos (TODO GET es público)
+                        .requestMatchers(HttpMethod.GET, "/api/alojamientos/**").permitAll()
+
+                        // CRUD → solo anfitriones o admin
+                        .requestMatchers(HttpMethod.POST, "/api/alojamientos").hasAnyRole("ANFITRION", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/alojamientos/**").hasAnyRole("ANFITRION", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/alojamientos/**").hasAnyRole("ANFITRION", "ADMIN")
 
-                        // 📅 RESERVAS
-                        .requestMatchers(HttpMethod.POST, "/api/reservas").hasAnyRole("USER", "ANFITRION")
-                        .requestMatchers(HttpMethod.PUT, "/api/reservas/**").hasAnyRole("USER", "ANFITRION", "ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/reservas/**").hasAnyRole("USER", "ANFITRION", "ADMIN")
+                        // 👤 Usuarios (GET público para poder ver info del anfitrión)
+                        .requestMatchers(HttpMethod.GET, "/api/usuarios/**").permitAll()
 
-                        // 💬 COMENTARIOS
+                        // 💬 Comentarios
                         .requestMatchers(HttpMethod.GET, "/api/comentarios/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/comentarios").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/comentarios/**").authenticated()
 
-                        // 👑 ADMIN
+                        // 📅 Reservas
+                        .requestMatchers(HttpMethod.POST, "/api/reservas").hasAnyRole("USER", "ANFITRION")
+                        .requestMatchers(HttpMethod.PUT, "/api/reservas/**").hasAnyRole("USER", "ANFITRION", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/reservas/**").hasAnyRole("USER", "ANFITRION", "ADMIN")
+
+                        // 👑 Admin
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                        // 🔒 Cualquier otra ruta requiere autenticación
+                        // 🔐 Todo lo demás requiere estar logueado
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authProvider())

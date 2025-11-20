@@ -1,6 +1,3 @@
-// ==========================================
-// AlojamientoServiceImpl.java (con @Transactional)
-// ==========================================
 package com.uq.alojamientos.service.impl;
 
 import com.uq.alojamientos.domain.Alojamiento;
@@ -35,7 +32,9 @@ public class AlojamientoServiceImpl implements AlojamientoService {
     public AlojamientoDTO crear(AlojamientoDTO dto) {
         // Validar que el anfitrión existe
         Usuario anfitrion = usuarioRepo.findById(dto.getAnfitrionId())
-                .orElseThrow(() -> new IllegalArgumentException("Anfitrión no encontrado con ID: " + dto.getAnfitrionId()));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Anfitrión no encontrado con ID: " + dto.getAnfitrionId()
+                ));
 
         Alojamiento entity = mapper.map(dto, Alojamiento.class);
         entity.setAnfitrion(anfitrion);
@@ -53,7 +52,9 @@ public class AlojamientoServiceImpl implements AlojamientoService {
     @Override
     public void eliminarLogico(Long id) {
         Alojamiento alojamiento = repo.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Alojamiento no encontrado con ID: " + id));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Alojamiento no encontrado con ID: " + id
+                ));
 
         alojamiento.setEstado(EstadoAlojamiento.ELIMINADO);
         repo.save(alojamiento);
@@ -84,11 +85,27 @@ public class AlojamientoServiceImpl implements AlojamientoService {
                 .map(this::mapToDTO);
     }
 
+    // 👇👇 NUEVO MÉTODO PARA DETALLE POR ID
+    @Override
+    @Transactional(readOnly = true)
+    public AlojamientoDTO obtenerPorId(Long id) {
+        Alojamiento entity = repo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Alojamiento no encontrado con ID: " + id
+                ));
+        return mapToDTO(entity);
+    }
+
+    // ==========================
+    // Métodos internos de mapeo
+    // ==========================
     private AlojamientoDTO mapToDTO(Alojamiento entity) {
         AlojamientoDTO dto = mapper.map(entity, AlojamientoDTO.class);
+
         if (entity.getAnfitrion() != null) {
             dto.setAnfitrionId(entity.getAnfitrion().getId());
         }
+
         dto.setServicios(entity.getServiciosLista());
         return dto;
     }
